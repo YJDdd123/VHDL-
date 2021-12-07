@@ -1,0 +1,179 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+ENTITY liushi IS
+    PORT (CLK,RST,EN ,A,B,turn,turn1,up,chose: IN STD_LOGIC;  
+		    Q  : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
+          CQ1  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+          CQ2  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+          CQ3  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+          CQ4  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+          CQ5  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+          CQ6  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); 
+          SPEA : OUT STD_LOGIC;    
+		  COUT : OUT STD_LOGIC 
+		   );           
+END liushi;
+ARCHITECTURE behav OF liushi IS
+signal c1: STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal c2 :STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal c3 :STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal c4 :STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal c5 :STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal c6 :STD_LOGIC_VECTOR(3 DOWNTO 0);
+signal x :integer range  0 TO 1;
+ signal  CQI   : STD_LOGIC_VECTOR(3 DOWNTO 0);
+     signal  CQII  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+     signal  CQIII : STD_LOGIC_VECTOR(3 DOWNTO 0);
+     signal  CQIV  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+     signal  CQV   : STD_LOGIC_VECTOR(3 DOWNTO 0);
+     signal  CQVI  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+BEGIN 
+
+
+
+
+PROCESS(CLK, RST, EN,A,B,turn,turn1,up,chose,Q)
+--     VARIABLE  CQI   : STD_LOGIC_VECTOR(3 DOWNTO 0);
+--     VARIABLE  CQII  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+--     VARIABLE  CQIII : STD_LOGIC_VECTOR(3 DOWNTO 0);
+--     VARIABLE  CQIV  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+--     VARIABLE  CQV   : STD_LOGIC_VECTOR(3 DOWNTO 0);
+--     VARIABLE  CQVI  : STD_LOGIC_VECTOR(3 DOWNTO 0); 
+BEGIN
+---模式0计时状态
+    if A ='0'  and B= '0' then
+      IF RST = '1' THEN  
+        CQI   <= (OTHERS =>'0') ;     
+        CQII  <= (OTHERS =>'0') ;   
+        CQIII <= (OTHERS =>'0') ;    
+        CQIV  <= (OTHERS =>'0') ;   
+        CQV   <= (OTHERS =>'0') ;   
+        CQVI  <= (OTHERS =>'0') ;                
+      ELSIF CLK'EVENT AND CLK='1' THEN           
+         IF EN = '1' THEN  
+            ----- 秒                   
+				IF CQI < 9 THEN   CQI <= CQI + 1;         
+					ELSE    CQI <= (OTHERS =>'0'); CQII <=CQII+1;
+			IF CQII>4 THEN 
+			CQII<=(OTHERS =>'0');  CQIII <= CQIII + 1;
+        END IF;END IF; 
+        ----分  
+        IF CQIII < 10  THEN            
+			ELSE   CQIII <= (OTHERS =>'0'); CQIV <=CQIV+1; 
+		END IF;	
+		
+		IF CQIV>5 THEN 
+			CQIV <=(OTHERS =>'0');CQV <= CQV + 1; 
+        END IF;
+        ----时
+       IF CQV < 10 THEN           
+			ELSE    CQV <= (OTHERS =>'0'); CQVI<=CQVI+1;
+       END IF;       
+         IF CQVI=2 AND CQV=4 THEN 
+			IF CQV<4 THEN CQV <= CQV + 1; 
+			ELSE CQV <= (OTHERS =>'0'); CQVI<= (OTHERS =>'0');
+			END IF;
+         END IF;
+       END IF;
+    END IF; 
+    IF CQIII=0 AND CQIV=0 THEN 
+		SPEA <= '0';
+        ELSE SPEA <= '1'; 
+    END IF;
+        IF CQI = 9 THEN COUT <= '1';       
+			ELSE  COUT <= '0';
+		 CQ1 <= CQI; 
+         CQ2 <= CQII;
+         CQ3 <= CQIII; 
+         CQ4 <= CQIV;
+         CQ5 <= CQV; 
+         CQ6 <= CQVI;
+		END IF;
+---模式1
+  elsif  A ='0' and B= '1' then  
+    	 if turn = '0' and turn1='0'  then
+	        if chose='0' then	      
+				CQIII<=Q;
+				CQ3 <= CQIII; 
+		    end if ; 
+		    if chose='1'then 
+			   CQIV<=Q;
+		       CQ4 <= CQIV; 
+		    end if ; 
+	     end if;    
+		if turn ='1'and turn1='0' then	
+           if chose='0' then
+				CQV<=Q;
+				CQ3 <= CQV; 
+		    end if ; 
+		    if chose='1'then 
+		        CQVI<=Q;
+		        CQ4 <= CQVI; 
+		    end if ; 		    	 
+		end if ;  
+	    if turn1='1' then	
+           if chose='0' then
+				CQI<=Q;
+				CQ1 <= CQI; 
+		    end if ; 
+		    if chose='1'then 
+		       CQII<=Q;
+		       CQ2 <= CQII; 
+		    end if ; 		    	 
+		 end if ;  
+	     CQ1 <= CQI; 
+         CQ2 <= CQII;
+         CQ3 <= CQIII; 
+         CQ4 <= CQIV;
+         CQ5 <= CQV; 
+         CQ6 <= CQVI; 
+         end if ; 
+      if  A ='1' and B= '1' then 
+		 CQ1 <= c1; 
+         CQ2 <= c2;
+         CQ3 <= c3; 
+         CQ4 <= c4;
+         CQ5 <= CQV; 
+         CQ6 <= CQVI; 
+        if c1=0 and c2=0 and c3=0 and c4=0 then 
+        SPEA <= '0';
+        ELSE SPEA <= '1';
+         end if;
+         end if ;
+END PROCESS;    	 		 
+---模式2 
+
+
+  PROCESS(CLK,A,B)
+ 
+ BEGIN 
+ if  A ='1' and B= '1' then  
+  IF CLK'EVENT AND CLK='1' THEN
+     if x=0 then 
+     c1<=CQI;
+     c2<=CQII;
+	 c3<=CQIII;
+	 c4<=CQIV; 
+	 x<=x+1;
+	 end if; 
+ IF c1>0 then 
+  c1<=c1-1;
+  elsif c2>0 then 
+  c2<=c2-1; c1<="1001";
+  elsif c3>0 THEN 
+  c3<=c3-1; c2<="0101";c1<="1001";
+  elsif c4>0 then 
+  c4<=c4-1; c3<="1001";c2<="0101";c1<="1001";
+  elsif c4=0 and c3=0 and c2=0 and c1=0 then  
+--      SPEA <= '0';     
+      end if; 
+     end if ;
+		
+else x<=0;
+   end if ;
+	
+
+END PROCESS;
+
+END behav;
